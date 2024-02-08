@@ -1,43 +1,45 @@
 import os
-import unittest
 
 import numpy as np
+import pytest
+
+from pneumonia.preprocess import compute_standard_params
 
 
-class TestComputeStandardParams(unittest.TestCase):
-    def setUp(self):
-        # Create a temporary directory with some test images
-        self.out_dir = 'test_dir'
-        os.makedirs(self.out_dir, exist_ok=True)
-        self.shape = (10, 10)
+@pytest.fixture
+def temp_dir():
+    # Create a temporary directory with some test images
+    out_dir = 'test_dir'
+    os.makedirs(out_dir, exist_ok=True)
+    shape = (10, 10)
+    yield out_dir, shape
+    # Remove the temporary directory after the test
+    for filename in os.listdir(out_dir):
+        os.remove(os.path.join(out_dir, filename))
+    os.rmdir(out_dir)
 
-    def tearDown(self):
-        # Remove the temporary directory after the test
-        for filename in os.listdir(self.out_dir):
-            os.remove(os.path.join(self.out_dir, filename))
-        os.rmdir(self.out_dir)
 
-    def test_compute_standard_params_std_zero(self):
-        for i in range(5):
-            img = np.full(self.shape, i, dtype=np.float32)
-            np.save(os.path.join(self.out_dir, f'test_img_{i}.npy'), img)
+def test_compute_standard_params_std_zero(temp_dir):
+    out_dir, shape = temp_dir
+    for i in range(5):
+        img = np.full(shape, i, dtype=np.float32)
+        np.save(os.path.join(out_dir, f'test_img_{i}.npy'), img)
 
-        params = compute_standard_params(self.out_dir, self.shape)
-        # The test images are filled with constant values, so the mean should be equal to the value,
-        # and the standard deviation should be 0
-        for i in range(5):
-            self.assertAlmostEqual(params.pixel_mean, i)
-            self.assertAlmostEqual(params.pixel_std, 0)
+    params = compute_standard_params(out_dir, shape)
+    # The test images are filled with constant values, so the mean should be equal to the value,
+    # and the standard deviation should be 0
+    for i in range(5):
+        assert np.isclose(params.pixel_mean, i)
+        assert np.isclose(params.pixel_std, 0)
 
-    def test_compute_standard_params_std_one(self):
-        # Test for standard deviation of 1
-        for i in range(5):
-            img = np.random.normal(loc=0, scale=1, size=self.shape).astype(np.float32)
-            np.save(os.path.join(self.out_dir, f'test_img_{i}.npy'), img)
 
-        params = compute_standard_params(self.out_dir, self.shape)
-        self.assertAlmostEqual(params.pixel_mean, 0, places=1)
-        self.assertAlmostEqual(params.pixel_std, 1, places=1)
+def test_compute_standard_params_std_one(temp_dir):
+    out_dir, shape = temp_dir
+    # Test for standard deviation of 1
+    for i in range(5):
+        img = np.random.normal(loc=0, scale=1, size=shape).astype(np.float32)
+        np.save(os.path.join(out_dir, f'test_img_{i}.npy'), img)
 
-if __name__ == '__main__':
-    unittest.main()
+    params = compute_standard_params(out_dir, shape)
+    assert np.isclose(params.pixel_mean, 0, atol=0.1)
+    assert np.isclose(params.pixel_std, 1, atol=0.1)
