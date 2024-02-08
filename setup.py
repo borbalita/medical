@@ -4,7 +4,7 @@ with open('requirements.txt', 'r') as f:
     required = f.read().splitlines()
 
 setup(
-    name='pnm',
+    name='pneumonia',
     version='0.1.0',
     url='https://github.com/borbalita/public/medical/pneumonia',
     author='Borbala Tasnadi',
