@@ -1,7 +1,8 @@
 """Utils for pneumonia classification."""
+
 import os
 import random
-from typing import NamedTuple
+from typing import Any, NamedTuple, Tuple
 
 import cv2
 import numpy as np
@@ -21,19 +22,26 @@ class StandardParams(NamedTuple):
     std : float
         The standard deviation value used for standardization.
     """
+
     mean: float
     std: float
 
 
-def _create_output_dirs(out_dir, labels):
-    targets = labels['Target'].unique()
+def _create_output_dirs(out_dir: str, labels: pd.DataFrame) -> None:
+    targets = labels["Target"].unique()
     for target in targets:
-        os.makedirs(f'{out_dir}/train/{target}', exist_ok=True)
-        os.makedirs(f'{out_dir}/val/{target}', exist_ok=True)
+        os.makedirs(f"{out_dir}/train/{target}", exist_ok=True)
+        os.makedirs(f"{out_dir}/val/{target}", exist_ok=True)
 
 
-def preprocess(raw_dir, label_path, out_dir, shape, val_ratio=0.2,
-               pixel_format=np.float16):
+def preprocess(
+    raw_dir: str,
+    label_path: str,
+    out_dir: str,
+    shape: Tuple[int, int],
+    val_ratio: float = 0.2,
+    pixel_format: Any = np.float16,
+) -> None:
     """
     Preprocesses raw DICOM images by resizing and normalizing them, and saves
     them as numpy arrays.
@@ -67,22 +75,22 @@ def preprocess(raw_dir, label_path, out_dir, shape, val_ratio=0.2,
 
     for patient_id in tqdm(labels.patientId.unique()):
         file_path = os.path.join(raw_dir, patient_id)
-        file_path = file_path + '.dcm'
+        file_path = file_path + ".dcm"
         if not os.path.exists(file_path):
             continue
 
         img = dcm.read_file(file_path).pixel_array
-        img = img / 255.
+        img = img / 255.0
         img = cv2.resize(img, shape).astype(pixel_format)
 
-        label = labels[labels['patientId'] == patient_id]['Target'].iloc[0]
-        patient_id = ''.join(np.random.choice(list('abc'), 10))
-        train_or_val = 'val' if random.random() < val_ratio else 'train'
+        label = labels[labels["patientId"] == patient_id]["Target"].iloc[0]
+        train_or_val = "val" if random.random() < val_ratio else "train"
         save_path = f"{out_dir}/{train_or_val}/{label}/{patient_id}"
         np.save(save_path, img)
 
 
-def compute_standard_params(preproc_dir, shape):
+def compute_standard_params(preproc_dir: str, shape: Tuple[int, int]
+                            ) -> StandardParams:
     """
     Compute the standard parameters (pixel mean and pixel standard deviation
     for a set of images.
@@ -111,25 +119,25 @@ def compute_standard_params(preproc_dir, shape):
     pixel_sqrd_sum = 0
     n_img = 0
 
-    train_dir = os.path.join(preproc_dir, 'train')
+    train_dir = os.path.join(preproc_dir, "train")
     for label in os.listdir(train_dir):
-        print('Processing label:', label)
+        print("Processing label:", label)
         label_dir = os.path.join(train_dir, label)
         for patient_id in tqdm(os.listdir(label_dir)):
             patient_dir = os.path.join(label_dir, patient_id)
             img = np.load(patient_dir)
             if img.shape != shape:
-                raise ValueError(f'Expected image shape {shape}, got '
-                                 f'{img.shape}')
+                raise ValueError(
+                    f"Expected image shape {shape}, got " f"{img.shape}")
 
             pixel_sum += img.sum()
-            pixel_sqrd_sum += (img ** 2).sum()
+            pixel_sqrd_sum += (img**2).sum()
             n_img += 1
 
     if n_img == 0:
-        raise ValueError('No images found in the directory')
+        raise ValueError("No images found in the directory")
 
     pixel_mean = pixel_sum / (n_img * shape[0] * shape[1])
-    pixel_std = np.sqrt(pixel_sqrd_sum / (n_img * shape[0] * shape[1])
-                        - pixel_mean ** 2)
+    pixel_std = np.sqrt(
+        pixel_sqrd_sum / (n_img * shape[0] * shape[1]) - pixel_mean**2)
     return StandardParams(pixel_mean, pixel_std)

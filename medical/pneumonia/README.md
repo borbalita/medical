@@ -1,2 +1,0 @@
-# Pneumonia detection API
-tbc.

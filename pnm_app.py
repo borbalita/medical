@@ -39,7 +39,7 @@ if uploaded_file is not None:
     if st.button('Run Pneumonia Detection'):
         img_batch = torch.tensor(img).unsqueeze(0).unsqueeze(0)
         img_batch = (img_batch.to(device).float() -
-                    standard_params[0] / standard_params[1])
+                     standard_params[0] / standard_params[1])
         with torch.no_grad():
             logit = pnm_model(img_batch)
 
@@ -51,4 +51,3 @@ if uploaded_file is not None:
             result = 'Congrats! No pneumonia detected.'
 
         st.write(result)
-

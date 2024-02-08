@@ -1,9 +1,16 @@
+"""
+Module for the PneumoniaClassifier class and related functions.
+"""
+
+from typing import Any, Dict, Optional
+
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch import cuda, sigmoid, tensor
 from torch.nn import BCEWithLogitsLoss, Conv2d, Linear
 from torch.optim import Adam
+from torch.utils.data import DataLoader
 from torchmetrics import Accuracy
 from torchvision.models import resnet18
 
@@ -30,7 +37,8 @@ class PneumoniaClassifier(LightningModule):
 
     """
 
-    def __init__(self, weight=1, metrics=None):
+    def __init__(
+            self, weight: float = 1, metrics: Optional[Dict[str, Any]] = None):
         super().__init__()
 
         self.model = resnet18(pretrained=True)
@@ -133,34 +141,35 @@ class PneumoniaClassifier(LightningModule):
 
 
 def train_pneumonia_classifier(
-    train_loader, val_loader, log_dir, checkpoint_dir, weight=1, max_epochs=10
-):
+    train_loader: DataLoader,
+    val_loader: DataLoader,
+    log_dir: str,
+    checkpoint_dir: str,
+    weight: float = 1,
+    max_epochs: int = 10
+) -> PneumoniaClassifier:
     """
     Train the pneumonia classifier model.
 
     Parameters
     ----------
-    preproc_dir : str
-        The directory path containing the preprocessed images.
+    train_loader : DataLoader
+        The data loader for training data.
+    val_loader : DataLoader
+        The data loader for validation data.
     log_dir : str
         The directory path where the logs will be saved.
     checkpoint_dir : str
         The directory path where the model checkpoints will be saved.
-    shape : tuple
-        The shape (height, width) of the preprocessed images.
-    batch_size : int
-        The batch size for training.
     weight : float, optional
         Weight for the positive class in the loss function. Default is 1.
-    val_ratio : float, optional
-        The ratio of images to be used for validation. Default is 0.2.
     max_epochs : int, optional
         The maximum number of epochs for training. Default is 10.
 
     Returns
     -------
-    None
-        This function does not return any value.
+    PneumoniaClassifier
+        The trained pneumonia classifier model.
 
     """
     model = PneumoniaClassifier(weight)
