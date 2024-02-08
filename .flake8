@@ -1,0 +1,13 @@
+[flake8]
+
+ignore = W503 # line break occured after a binary operator (opposite of W504)
+
+per-file-ignores =
+    tests/*: D
+    setup.py: D
+    docs/*: D
+
+exclude =
+    .git
+
+max-line-length = 80
