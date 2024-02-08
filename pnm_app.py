@@ -7,7 +7,7 @@ import pydicom
 import streamlit as st
 import torch
 
-from pnm.pneumonia_classifier import PneumoniaClassifier
+from pneumonia.classifier import PneumoniaClassifier
 
 MODEL_PATH = 'models/resnet_2024-02-06.pth'
 
