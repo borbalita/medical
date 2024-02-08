@@ -1,0 +1,32 @@
+# Managing dependencies
+pip-tools==6.11.0
+
+# Code formatter
+isort==5.10.1
+seed-isort-config==2.2.0
+#black==22.10.0
+
+# Optional typings
+mypy==0.991
+pytest-mypy==0.10.2
+types-python-dateutil
+types-PyYAML
+
+# Static analysis
+flake8==5.0.4
+flake8-bugbear==22.12.6
+flake8-comprehensions==3.10.1
+flake8-docstrings==1.6.0
+flake8-eradicate==1.4.0
+flake8-broken-line==0.6.0
+
+# Security scanning
+bandit==1.7.4
+bandit[toml]==1.7.4
+
+# Tests
+pytest==7.2.0
+pytest-cov==4.0.0
+pytest-forked==1.4.0
+pytest-xdist==3.1.0
+coverage==6.5.0
