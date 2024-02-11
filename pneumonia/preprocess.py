@@ -33,6 +33,22 @@ def _create_output_dirs(out_dir: str, labels: pd.DataFrame) -> None:
         os.makedirs(f"{out_dir}/train/{target}", exist_ok=True)
         os.makedirs(f"{out_dir}/val/{target}", exist_ok=True)
 
+def preprocess_array(img: np.ndarray, shape: Tuple[int, int], pixel_format: Any):
+    """
+    Preprocesses an image array by normalizing pixel values and resizing it.
+
+    Parameters:
+        img (np.ndarray): The input image array.
+        shape (Tuple[int, int]): The desired shape of the output image.
+        pixel_format (Any): The desired pixel format of the output image.
+
+    Returns:
+        np.ndarray: The preprocessed image array.
+
+    """
+    img = img / 255.0
+    return cv2.resize(img, shape).astype(pixel_format)
+
 
 def preprocess(
     raw_dir: str,
@@ -80,8 +96,7 @@ def preprocess(
             continue
 
         img = dcm.read_file(file_path).pixel_array
-        img = img / 255.0
-        img = cv2.resize(img, shape).astype(pixel_format)
+        img = preprocess_array(img, shape, pixel_format)
 
         label = labels[labels["patientId"] == patient_id]["Target"].iloc[0]
         train_or_val = "val" if random.random() < val_ratio else "train"

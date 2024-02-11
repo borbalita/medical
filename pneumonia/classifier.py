@@ -68,19 +68,24 @@ class PneumoniaClassifier(LightningModule):
         """
         return self.model(*args, **kwargs)
 
-    def training_step(self, *args, **kwargs):
+    def training_step(self, batch, batch_idx):
         """
         Training step of the model.
 
-        Args:
-            batch (tuple): Tuple containing input and target tensors.
-            batch_idx (int): Index of the current batch.
+        Parameters
+        ----------
+        batch : tuple
+            Tuple containing input and target tensors.
+        batch_idx : int
+            Index of the current batch.
 
-        Returns:
-            torch.Tensor: Loss value.
+        Returns
+        -------
+        torch.Tensor
+            Loss value.
 
         """
-        img, label = kwargs["batch"]
+        img, label = batch
         logit = self(img)[:, 0]
         loss = self.loss_fn(logit, label.float())
 
@@ -99,19 +104,24 @@ class PneumoniaClassifier(LightningModule):
             self.log(f"batch_train_{name}", metric.compute())
             metric.reset()
 
-    def validation_step(self, *args, **kwargs):
+    def validation_step(self, batch, batch_idx):
         """
         Validation step of the model.
 
-        Args:
-            batch (tuple): Tuple containing input and target tensors.
-            batch_idx (int): Index of the current batch.
+        Parameters
+        ----------
+        batch : tuple
+            Tuple containing input and target tensors.
+        batch_idx : int
+            Index of the current batch.
 
-        Returns:
-            torch.Tensor: Loss value.
+        Returns
+        -------
+        torch.Tensor
+            Loss value.
 
         """
-        img, label = kwargs["batch"]
+        img, label = batch
         logit = self(img)[:, 0]
         loss = self.loss_fn(logit, label.float())
         self.log("val_loss", loss)
@@ -180,7 +190,6 @@ def train_pneumonia_classifier(
 
     trainer = Trainer(
         max_epochs=max_epochs,
-        gpus=1 if cuda.is_available() else 0,
         logger=logger,
         callbacks=[checkpoint_callback],
     )
