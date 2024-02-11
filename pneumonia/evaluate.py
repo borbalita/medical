@@ -8,7 +8,14 @@ import pandas as pd
 import seaborn as sns
 import torch
 from torch.nn.functional import sigmoid
-from torchmetrics import AUROC, ROC, Accuracy, ConfusionMatrix, Precision, Recall
+from torchmetrics import (
+    AUROC,
+    ROC,
+    Accuracy,
+    ConfusionMatrix,
+    Precision,
+    Recall,
+)
 from tqdm import tqdm
 
 
@@ -164,26 +171,25 @@ def plot_roc(train_preds, val_preds, train_labels, val_labels,
     return ax
 
 
-def show_random_images(val_data, val_preds, val_labels):
+def show_random_images(images, preds, labels):
     """
-    Display random images from the validation dataset along with their
-    predictions and true labels.
+    Display random images along with their predictions and true labels.
 
     Parameters
     ----------
-    val_data : numpy.ndarray
-        Array of validation images.
-    val_preds : numpy.ndarray
-        Array of predicted values for the validation images.
-    val_labels : numpy.ndarray
-        Array of true labels for the validation images.
+    images : numpy.ndarray
+        Array of images.
+    preds : numpy.ndarray
+        Array of predicted values for the images.
+    labels : numpy.ndarray
+        Array of true labels for the images.
     """
     _, axes = plt.subplots(3, 3, figsize=(9, 9))
-    random_indices = np.random.choice(len(val_data), size=9, replace=False)
+    random_indices = np.random.choice(len(images), size=9, replace=False)
     for ax, i in zip(axes.flatten(), random_indices):
-        ax.imshow(val_data[i][0][0], cmap='bone')
-        ax.set_title(f"Prediction: {int(val_preds[i] > 0.25)}, "
-                     f"True Label: {val_labels[i]}")
+        ax.imshow(images[i][0][0], cmap='bone')
+        ax.set_title(f"Prediction: {int(preds[i] > 0.25)}, "
+                     f"True Label: {labels[i]}")
         ax.axis('off')
 
     plt.tight_layout()
