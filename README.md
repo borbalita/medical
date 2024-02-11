@@ -22,6 +22,8 @@ streamlit run app.py
 
 To upload an image to the pneumonia detection app press the 'Browse files' button. The currently supported file formats are dcm and npy. The selected image will be displayed in the app. To classify the image press the 'Run pneumonia detection' button.
 
+![pneumonia detection app](docs/images/pneumonia_app.png)
+
 ## Probability threshold
 
 Under the hood the pneumonia detection app computes the probability that the patient in the x-ray image has pneumonia. If this probability is above a certain threshold, the patient is diagnosed with pneumonia. The default threshold value is 0.25 and it can be adjusted by moving the slider in the sidebar.
