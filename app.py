@@ -9,23 +9,24 @@ import torch
 
 from pneumonia.classifier import PneumoniaClassifier
 
-MODEL_PATH = 'models/resnet_2024-02-06.pth'
+PARAM_PATH = 'parameters/resnet_2024-02-06.pth'
 
 st.title("Pneumonia Detection")
 
 threshold = st.sidebar.slider("Probability threshold", 0.0, 1.0, 0.25)
 
 model_load_state = st.text('Loading pneumonia detector...')
-standard_params = pickle.load(open('models/standard_params.pkl', 'rb'))
+
+standard_params = pickle.load(open('parameters/standard_params.pkl', 'rb'))
 pnm_model = PneumoniaClassifier()
-pnm_model.load_state_dict(torch.load(MODEL_PATH))
+pnm_model.load_state_dict(torch.load(PARAM_PATH))
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 pnm_model.to(device)
+
 model_load_state.text('')
 
 uploaded_file = st.file_uploader("Upload DICOM or NPY file",
                                  type=["dcm", "npy"])
-
 
 if uploaded_file is not None:
     if uploaded_file.name.endswith('.npy'):
