@@ -22,6 +22,8 @@ streamlit run app.py
 
 To upload an image to the pneumonia detection app press the 'Browse files' button. The currently supported file formats are dcm and npy. The selected image will be displayed in the app. To classify the image press the 'Run pneumonia detection' button.
 
+**_NOTE:_** You can find an example dcm file in [here](docs/images/example.dcm).
+
 ![pneumonia detection app](docs/images/pneumonia_app.png)
 
 ## Probability threshold
