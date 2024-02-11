@@ -8,8 +8,11 @@ import streamlit as st
 import torch
 
 from pneumonia.classifier import PneumoniaClassifier
+from pneumonia.preprocess import preprocess_array
 
-PARAM_PATH = 'parameters/resnet_2024-02-06.pth'
+PARAM_PATH = 'parameters/standard_params_20240211194351.pkl'
+MODEL_PATH = 'parameters/resnet_20240211235509.pth'
+IMAGE_SHAPE = (224, 224)
 
 st.title("Pneumonia Detection")
 
@@ -17,9 +20,9 @@ threshold = st.sidebar.slider("Probability threshold", 0.0, 1.0, 0.25)
 
 model_load_state = st.text('Loading pneumonia detector...')
 
-standard_params = pickle.load(open('parameters/standard_params.pkl', 'rb'))
+standard_params = pickle.load(open(PARAM_PATH, 'rb'))
 pnm_model = PneumoniaClassifier()
-pnm_model.load_state_dict(torch.load(PARAM_PATH))
+pnm_model.load_state_dict(torch.load(MODEL_PATH))
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 pnm_model.to(device)
 
@@ -35,12 +38,13 @@ if uploaded_file is not None:
         dcm = pydicom.dcmread(uploaded_file)
         img = dcm.pixel_array
 
+    img = preprocess_array(img, IMAGE_SHAPE, np.float32)
     st.image(img, caption='chest x-ray', width=300)
 
-    if st.button('Run Pneumonia Detection'):
+    if st.button('Run pneumonia detection'):
         img_batch = torch.tensor(img).unsqueeze(0).unsqueeze(0)
         img_batch = (img_batch.to(device).float() -
-                     standard_params[0] / standard_params[1])
+                     standard_params[0]) / standard_params[1]
         with torch.no_grad():
             logit = pnm_model(img_batch)
 
