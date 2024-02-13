@@ -6,6 +6,7 @@ on:
       - main
       - master
       - set-up-docker 
+      - fix-docker
 
 jobs:
   docker:
